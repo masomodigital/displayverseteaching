@@ -3,88 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submitted Messages</title>
+    <title>Send Message</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            background-color: #f4f4f4;
         }
-        h1 {
+        h2 {
             color: #333;
         }
-        .message-container {
-            margin-bottom: 20px;
-            background-color: #fff;
+        form {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"], input[type="email"], textarea {
+            width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
+            margin: 10px 0;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: green;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        input[type="submit"]:hover {
+            background-color: darkgreen;
+        }
+        .message-container {
+            margin-top: 20px;
         }
         .name {
             color: red;
             font-weight: bold;
-            font-size: 1.2em;
         }
         .email {
             color: gray;
         }
         .message {
             margin-top: 5px;
-            color: #555;
         }
     </style>
 </head>
 <body>
-    <h1>Submitted Messages</h1>
-    <div id="messages">
-        <!-- Messages will be loaded here -->
-    </div>
+    <h2>Fill form to send message to your subscribers.</h2>
+    <form action="https://script.google.com/macros/s/AKfycbw-zoO3ZrP1ZHLUBAA6b4cXW6fgN2SL58eYgNENgcRr8Z9yQQnG7Cm6wqUgDg8iGJ5jUA/exec" method="post">
+        <label for="name">Title of Message:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+        
+        <label for="email">Your Email Address:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+        
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" required style="height: 200px;"></textarea><br><br>
+        
+        <input type="submit" value="Submit">
+    </form>
+
+    <div class="message-container" id="messages"></div>
 
     <script>
-        // JSONP URL with callback
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbw-zoO3ZrP1ZHLUBAA6b4cXW6fgN2SL58eYgNENgcRr8Z9yQQnG7Cm6wqUgDg8iGJ5jUA/exec?callback=fetchCallback';
+        // Function to fetch and display messages from Google Apps Script
+        async function fetchMessages() {
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbw-zoO3ZrP1ZHLUBAA6b4cXW6fgN2SL58eYgNENgcRr8Z9yQQnG7Cm6wqUgDg8iGJ5jUA/exec';
+            try {
+                const response = await fetch(scriptUrl);
+                const data = await response.json();
+                const messagesDiv = document.getElementById('messages');
 
-        // Function to display the messages
-        function fetchCallback(data) {
-            const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML = '';  // Clear existing content
+                // Clear existing content
+                messagesDiv.innerHTML = '';
 
-            // Loop through each message entry and display it
-            data.forEach(entry => {
-                const messageContainer = document.createElement('div');
-                messageContainer.classList.add('message-container');
+                // Loop through the messages and display them
+                data.forEach(entry => {
+                    const messageContainer = document.createElement('div');
 
-                const name = document.createElement('div');
-                name.classList.add('name');
-                name.textContent = entry.name;
+                    const name = document.createElement('div');
+                    name.classList.add('name');
+                    name.textContent = entry.name;
 
-                const email = document.createElement('div');
-                email.classList.add('email');
-                email.textContent = entry.email;
+                    const email = document.createElement('div');
+                    email.classList.add('email');
+                    email.textContent = entry.email;
 
-                const message = document.createElement('div');
-                message.classList.add('message');
-                message.textContent = entry.message;
+                    const message = document.createElement('div');
+                    message.classList.add('message');
+                    message.textContent = entry.message;
 
-                // Append elements to the message container
-                messageContainer.appendChild(name);
-                messageContainer.appendChild(email);
-                messageContainer.appendChild(message);
+                    messageContainer.appendChild(name);
+                    messageContainer.appendChild(email);
+                    messageContainer.appendChild(message);
 
-                // Add the message container to the page
-                messagesDiv.appendChild(messageContainer);
-            });
+                    messagesDiv.appendChild(messageContainer);
+                });
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+            }
         }
 
-        // Load JSONP data by appending a script element
-        function fetchMessages() {
-            const script = document.createElement('script');
-            script.src = scriptUrl;
-            document.body.appendChild(script);
-        }
-
-        // Fetch messages when the page loads
+        // Fetch the messages when the page loads
         window.onload = fetchMessages;
     </script>
 </body>

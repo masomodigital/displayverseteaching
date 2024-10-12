@@ -7,69 +7,84 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
         }
         .message-container {
             margin-bottom: 20px;
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
         }
         .name {
             color: red;
             font-weight: bold;
+            font-size: 1.2em;
         }
         .email {
             color: gray;
         }
         .message {
             margin-top: 5px;
+            color: #555;
         }
     </style>
 </head>
 <body>
     <h1>Submitted Messages</h1>
-    <div id="messages"></div>
+    <div id="messages">
+        <!-- Messages will be loaded here -->
+    </div>
 
     <script>
-        // URL of the deployed Google Apps Script that returns JSON
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbw-zoO3ZrP1ZHLUBAA6b4cXW6fgN2SL58eYgNENgcRr8Z9yQQnG7Cm6wqUgDg8iGJ5jUA/exec';
+        // JSONP URL with callback
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbw-zoO3ZrP1ZHLUBAA6b4cXW6fgN2SL58eYgNENgcRr8Z9yQQnG7Cm6wqUgDg8iGJ5jUA/exec?callback=fetchCallback';
 
-        // Function to fetch and display the messages
-        async function fetchMessages() {
-            try {
-                const response = await fetch(scriptUrl);
-                const data = await response.json();
-                const messagesDiv = document.getElementById('messages');
+        // Function to display the messages
+        function fetchCallback(data) {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '';  // Clear existing content
 
-                // Clear existing content
-                messagesDiv.innerHTML = '';
+            // Loop through each message entry and display it
+            data.forEach(entry => {
+                const messageContainer = document.createElement('div');
+                messageContainer.classList.add('message-container');
 
-                // Loop through the messages and display them
-                data.forEach(entry => {
-                    const messageContainer = document.createElement('div');
-                    messageContainer.classList.add('message-container');
+                const name = document.createElement('div');
+                name.classList.add('name');
+                name.textContent = entry.name;
 
-                    const name = document.createElement('div');
-                    name.classList.add('name');
-                    name.textContent = entry.name;
+                const email = document.createElement('div');
+                email.classList.add('email');
+                email.textContent = entry.email;
 
-                    const email = document.createElement('div');
-                    email.classList.add('email');
-                    email.textContent = entry.email;
+                const message = document.createElement('div');
+                message.classList.add('message');
+                message.textContent = entry.message;
 
-                    const message = document.createElement('div');
-                    message.classList.add('message');
-                    message.textContent = entry.message;
+                // Append elements to the message container
+                messageContainer.appendChild(name);
+                messageContainer.appendChild(email);
+                messageContainer.appendChild(message);
 
-                    messageContainer.appendChild(name);
-                    messageContainer.appendChild(email);
-                    messageContainer.appendChild(message);
-
-                    messagesDiv.appendChild(messageContainer);
-                });
-            } catch (error) {
-                console.error('Error fetching messages:', error);
-            }
+                // Add the message container to the page
+                messagesDiv.appendChild(messageContainer);
+            });
         }
 
-        // Fetch the messages when the page loads
+        // Load JSONP data by appending a script element
+        function fetchMessages() {
+            const script = document.createElement('script');
+            script.src = scriptUrl;
+            document.body.appendChild(script);
+        }
+
+        // Fetch messages when the page loads
         window.onload = fetchMessages;
     </script>
 </body>

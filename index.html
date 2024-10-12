@@ -3,43 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit Message</title>
+    <title>Submitted Messages</title>
     <style>
         body {
             font-family: Arial, sans-serif;
         }
-        label {
+        .message-container {
+            margin-bottom: 20px;
+        }
+        .name {
+            color: red;
             font-weight: bold;
         }
-        textarea {
-            width: 100%;
-            height: 150px;
+        .email {
+            color: gray;
         }
-        input[type="submit"] {
-            background-color: green;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-        input[type="submit"]:hover {
-            background-color: darkgreen;
+        .message {
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Fill Form to Send Message to Your Subscribers</h1>
-    <form action="https://script.google.com/macros/s/AKfycbw-zoO3ZrP1ZHLUBAA6b4cXW6fgN2SL58eYgNENgcRr8Z9yQQnG7Cm6wqUgDg8iGJ5jUA/exec" method="post">
-        <label for="name">Title of Message:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
+    <h1>Submitted Messages</h1>
+    <div id="messages"></div>
 
-        <label for="email">Your Email Address:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
+    <script>
+        // URL of the deployed Google Apps Script that returns JSON
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbw-zoO3ZrP1ZHLUBAA6b4cXW6fgN2SL58eYgNENgcRr8Z9yQQnG7Cm6wqUgDg8iGJ5jUA/exec';
 
-        <label for="message">Message:</label><br>
-        <textarea id="message" name="message" required></textarea><br><br>
+        // Function to fetch and display the messages
+        async function fetchMessages() {
+            try {
+                const response = await fetch(scriptUrl);
+                const data = await response.json();
+                const messagesDiv = document.getElementById('messages');
 
-        <input type="submit" value="Submit">
-    </form>
+                // Clear existing content
+                messagesDiv.innerHTML = '';
+
+                // Loop through the messages and display them
+                data.forEach(entry => {
+                    const messageContainer = document.createElement('div');
+                    messageContainer.classList.add('message-container');
+
+                    const name = document.createElement('div');
+                    name.classList.add('name');
+                    name.textContent = entry.name;
+
+                    const email = document.createElement('div');
+                    email.classList.add('email');
+                    email.textContent = entry.email;
+
+                    const message = document.createElement('div');
+                    message.classList.add('message');
+                    message.textContent = entry.message;
+
+                    messageContainer.appendChild(name);
+                    messageContainer.appendChild(email);
+                    messageContainer.appendChild(message);
+
+                    messagesDiv.appendChild(messageContainer);
+                });
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+            }
+        }
+
+        // Fetch the messages when the page loads
+        window.onload = fetchMessages;
+    </script>
 </body>
 </html>
